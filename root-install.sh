@@ -191,7 +191,7 @@ do
 		fi
 
 		if [ "$replace" == true ]; then
-			sudo rm $line
+			sudo rm $path
 			if [ "$uninstall" != true ]; then
 				if [ "$copy" == true ]; then
 					sudo cp -f $line $path

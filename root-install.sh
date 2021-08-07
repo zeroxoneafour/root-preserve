@@ -144,10 +144,6 @@ do
 					echo "Replace $path?"
 					read -n1 -p "[y/n]: " y_n
 					echo ""
-					while [ -z "$(echo "$y_n" | sed -e '/[Y/y/N/n]/ p' -)" ]; do
-						read -n1 -p "[y/n]: " y_n
-						echo ""
-					done
 					if [ -n "$(echo "$y_n" | sed -e '/[Y/y]/ p' -)" ]; then
 						replace=true
 					else
@@ -178,10 +174,6 @@ do
 				echo "Replace $path?"
 				read -n1 -p "[y/n]: " y_n
 				echo ""
-				while [ -z "$(echo "$y_n" | sed -e '/[Y/y/N/n]/ p' -)" ]; do
-					read -n1 -p "[y/n]: " y_n
-					echo ""
-				done
 				if [ -n "$(echo "$y_n" | sed -e '/[Y/y]/ p' -)" ]; then
 					replace=true
 				else

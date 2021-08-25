@@ -1,7 +1,5 @@
 # root-install - requires user to have root privilege
 
-inputLength=1
-
 no_rebuild=false
 no_enable=false
 ask_help=false
@@ -12,52 +10,58 @@ debug=false
 disabled=false
 uninstall=false
 
-inputCounter=1
+files=""
 
-while [ $inputCounter -le $# ]
+while [ $# != 0 ]
 do
-	case "${@: $inputCounter: 1}" in
-		*"--no-rebuild"*)
+	case "$1" in
+		"--no-rebuild")
 			no_rebuild=true
-			let inputLength+=13
+			shift
 			;;
-		*"--no-enable"*)
+		"--no-enable")
 			no_enable=true
-			let inputLength+=12
+			shift
 			;;
-		*"--help"*)
+		"--help")
 			ask_help=true
-			let inputLength+=7
+			shift
 			;;
-		*"--copy"*)
+		"--copy")
 			copy=true
-			let inputLength+=7
+			shift
 			;;
-		*"--keep"*)
+		"--keep")
 			keep=true
-			let inputLength+=7
+			shift
 			;;
-		*"--overwrite"*)
+		"--overwrite")
 			overwrite=true
-			let inputLength+=12
+			shift
 			;;
-		*"--debug"*)
+		"--debug")
 			debug=true
-			let inputLength+=8
+			shift
 			;;
-		*"--disabled"*)
+		"--disabled")
 			disabled=true
-			let inputLength+=11
+			shift
 			;;
-		*"--uninstall"*)
+		"--uninstall")
 			uninstall=true
-			let inputLength+=12
+			shift
 			;;
 		*)
+			files="$files $1"
+			shift
 			;;
 	esac
-	let inputCounter+=1
 done
+
+if [ "$overwrite" == true ] && [ "$keep" == true ]; then
+	echo "You cannot use overwrite and keep simultaneously"
+	exit 0
+fi
 
 if [ "$ask_help" = true ]; then
 	echo "root-install help - requires root ability"
@@ -71,22 +75,15 @@ if [ "$ask_help" = true ]; then
 	echo "--overwrite - Overwrite existing files"
 	echo "--debug - Debugging, not actually helpful. Prints out a lot of metadata about the script"
 	echo "--disabled - Don't actually do anything. For debugging"
+	echo ""
 	echo "files are optional. You can use directories or individual files. With no input, defaults to everything except this script and build directory"
 	echo ""
 	echo "Example - ./root-install.sh --no-rebuild --overwrite --copy ./etc ./usr/share/xsessions"
-	exit 0
-fi
-
-if [ "$overwrite" == true ] && [ "$keep" == true ]; then
-	echo "You cannot use overwrite and keep simultaneously"
-	exit 0
 fi
 
 returndir=$(pwd)
 basedir=$(realpath "$0" | head --bytes -16)
 cd $basedir
-
-files=$(echo -n "$@" | cut -c $inputLength-)
 
 if [ -z "$files" ]; then
 	unfilteredFiles=$(find -mindepth 1 -maxdepth 1 -type d)
@@ -98,10 +95,8 @@ if [ -z "$files" ]; then
 fi
 
 if [ "$debug" == true ]; then
+	if [ "$ask_help" == true ]; then echo ""; fi
 	echo "Very helpfulTM debug info"
-	echo "Input number: $#"
-	echo "Input: $@"
-	echo "Input Length: $inputLength"
 	echo "Files: $files"
 	echo "no_rebuild: $no_rebuild"
 	echo "no_enable: $no_enable"
@@ -114,7 +109,7 @@ if [ "$debug" == true ]; then
 	echo "uninstall: $uninstall"
 fi
 
-if [ "$disabled" == true ]; then
+if [ "$disabled" == true ] || [ "$debug" == true ] || [ "$ask_help" == true ]; then
 	exit 0
 fi
 
